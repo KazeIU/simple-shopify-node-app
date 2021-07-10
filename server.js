@@ -38,7 +38,7 @@ app.get("/auth", (req, res) => {
   if (shop) {
     const state = nonce();
 
-    const redirectUri = "https://" + HOST_NAME + "/auth/callback";
+    const redirectUri = "http://localhost:" + port + "/auth/callback";
     const installUrl = "https://" + SHOP +
       "/admin/oauth/authorize?client_id=" + API_KEY +
       "&scope=" + SCOPES +
