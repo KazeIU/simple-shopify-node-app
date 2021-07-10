@@ -9,7 +9,7 @@ dotenv.config();
 import crypto from "crypto";
 import cookie from "cookie";
 import querystring from "querystring";
-import request from "request-promise";
+import axios from "axios";
 
 const nonce = require("nonce")();
 
@@ -83,27 +83,48 @@ app.get("/auth/callback", (req, res) => {
       code,
     };
 
-    request
-      .post(accessTokenRequestUrl, { json: accessTokenPayload })
+    axios
+      .post(accessTokenRequestUrl, accessTokenPayload)
       .then((accessTokenResponse) => {
-        const accessToken = accessTokenResponse.access_token;
+        const accessToken = accessTokenResponse.data.access_token;
 
-        const shopRequestUrl = "https://" + SHOP + "/admin/shop.json";
+        const shopRequestUrl = "https://" + SHOP + "/admin/api/2021-07/products/6888162295975.json";
+
         const shopRequestHeaders = {
           "X-Shopify-Access-Token": accessToken,
         };
 
-        request
-          .get(shopRequestUrl, { headers: shopRequestHeaders })
+        const titleUpdate = {
+          "product": {
+            "id": 6888162295975,
+            "title": "Updated Again Short Sleeve Aragorn Meme T-shirt"
+          }
+        };
+
+        axios
+          .put(shopRequestUrl, titleUpdate, { headers: shopRequestHeaders })
           .then((shopResponse) => {
-            res.end(shopResponse);
+            console.log("Update Title Successful", shopResponse);
+            res.end(`Title successfully updated to: "${response.data.product.title}"`);
           })
           .catch((error) => {
-            res.status(error.statusCode).send(error.error.error_description);
+            if (error.response) {
+              res.status(error.response.status).send(error.message);
+            } else if (error.request) {
+              console.log('Error', error.request);
+            } else {
+              console.log('Error', error.message);
+            }
           });
       })
       .catch((error) => {
-        res.status(error.statusCode).send(error.error.error_description);
+        if (error.response) {
+          res.status(error.response.status).send(error.message);
+        } else if (error.request) {
+          console.log('Error', error.request);
+        } else {
+          console.log('Error', error.message);
+        }
       });
   } else {
     res.status(400).send("Required parameters missing");
