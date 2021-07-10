@@ -23,12 +23,12 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/register": "^7.14.5",
     "@shopify/shopify-api": "^1.4.1",
+    "axios": "^0.21.1",
     "cookie": "^0.4.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "isomorphic-fetch": "^3.0.0",
-    "nonce": "^1.0.4",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6"
+    "node-cron": "^3.0.0",
+    "nonce": "^1.0.4"
   }
 }
