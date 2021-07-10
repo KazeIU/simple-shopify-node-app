@@ -38,17 +38,75 @@ app.get("/auth", (req, res) => {
   if (shop) {
     const state = nonce();
 
-    const redirectUri = "https://" + HOST_NAME + "/auth/callback";
+    const redirectUri = "http://localhost:" + port + "/auth/callback";
     const installUrl = "https://" + SHOP +
       "/admin/oauth/authorize?client_id=" + API_KEY +
       "&scope=" + SCOPES +
       "&state=" + state +
       "&redirect_uri=" + redirectUri;
 
-    res.cookie('state', state);
+    res.cookie("state", state);
     res.redirect(installUrl);
   } else {
-    return res.status(400).send('Missing shop parameter. Please add ?shop=your-development-shop.myshopify.com to your request');
+    return res
+      .status(400)
+      .send( "Missing shop parameter. Please add ?shop=your-development-shop.myshopify.com to your request");
+  }
+});
+
+app.get("/auth/callback", (req, res) => {
+  const { shop, hmac, code, state } = req.query;
+  const stateCookie = cookie.parse(req.headers.cookie).state;
+
+  if (state !== stateCookie) {
+    return res.status(403).send("Request origin cannot be verified");
+  }
+
+  if (shop && hmac && code) {
+    const map = Object.assign({}, req.query);
+    delete map["signature"];
+    delete map["hmac"];
+    const message = querystring.stringify(map);
+    const generatedHash = crypto
+      .createHmac("sha256", API_SECRET_KEY)
+      .update(message)
+      .digest("hex");
+
+    if (generatedHash !== hmac) {
+      return res.status(400).send("HMAC validation failed");
+    }
+
+    const accessTokenRequestUrl = "https://" + SHOP + "/admin/oauth/access_token";
+    const accessTokenPayload = {
+      client_id: API_KEY,
+      client_secret: API_SECRET_KEY,
+      code,
+    };
+
+    request
+      .post(accessTokenRequestUrl, { json: accessTokenPayload })
+      .then((accessTokenResponse) => {
+        const accessToken = accessTokenResponse.access_token;
+
+        const shopRequestUrl = "https://" + SHOP + "/admin/shop.json";
+        const shopRequestHeaders = {
+          "X-Shopify-Access-Token": accessToken,
+        };
+
+        request
+          .get(shopRequestUrl, { headers: shopRequestHeaders })
+          .then((shopResponse) => {
+            res.end(shopResponse);
+          })
+          .catch((error) => {
+            res.status(error.statusCode).send(error.error.error_description);
+          });
+      })
+      .catch((error) => {
+        res.status(error.statusCode).send(error.error.error_description);
+      });
+  } else {
+    res.status(400).send("Required parameters missing");
   }
 });
 
