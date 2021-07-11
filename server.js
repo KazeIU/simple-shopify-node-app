@@ -119,7 +119,7 @@ app.get("/auth/callback", (req, res) => {
           "X-Shopify-Access-Token": ACCESS_TOKEN,
         };
         
-        cron.schedule('* * * * *', () => {
+        cron.schedule('0 * * * *', () => {
           const titleUpdate = {
             "product": {
               "id": 6888162295975,
