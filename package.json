@@ -1,5 +1,5 @@
 {
-  "name": "shopify-embedded-app",
+  "name": "simple-shopify-node-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,21 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KazeIU/shopify-embedded-app.git"
+    "url": "git+https://github.com/KazeIU/simple-shopify-node-app.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/KazeIU/shopify-embedded-app/issues"
+    "url": "https://github.com/KazeIU/simple-shopify-node-app/issues"
   },
-  "homepage": "https://github.com/KazeIU/shopify-embedded-app#readme",
+  "homepage": "https://github.com/KazeIU/simple-shopify-node-app#readme",
   "dependencies": {
     "@babel/core": "^7.14.6",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.14.7",
     "@babel/register": "^7.14.5",
-    "@shopify/shopify-api": "^1.4.1",
     "axios": "^0.21.1",
     "concurrently": "^6.2.0",
     "cookie": "^0.4.1",

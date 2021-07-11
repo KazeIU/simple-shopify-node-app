@@ -1,7 +1,6 @@
 import "@babel/polyfill";
 import "isomorphic-fetch";
 
-import { Shopify, ApiVersion } from "@shopify/shopify-api";
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
@@ -22,16 +21,6 @@ const port = process.env.PORT || 5000;
 const { API_KEY, API_SECRET_KEY, HOST_NAME, SCOPES, SHOP } = process.env;
 
 let ACCESS_TOKEN;
-
-Shopify.Context.initialize({
-  API_KEY,
-  API_SECRET_KEY,
-  SCOPES,
-  HOST_NAME,
-  API_VERSION: ApiVersion.October20,
-  IS_EMBEDDED_APP: true,
-  SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
-});
 
 app.get("/status_check", (req, res) => {
   res.send({ message: "connected to server" });
