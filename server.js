@@ -11,6 +11,9 @@ import cookie from "cookie";
 import querystring from "querystring";
 import axios from "axios";
 
+import cron from "node-cron";
+import middleEarthNames from "middleearth-names";
+
 const nonce = require("nonce")();
 
 const app = express();
@@ -93,37 +96,38 @@ app.get("/auth/callback", (req, res) => {
         const shopRequestHeaders = {
           "X-Shopify-Access-Token": accessToken,
         };
-
-        const titleUpdate = {
-          "product": {
-            "id": 6888162295975,
-            "title": "Updated Again Short Sleeve Aragorn Meme T-shirt"
-          }
-        };
-
-        axios
-          .put(shopRequestUrl, titleUpdate, { headers: shopRequestHeaders })
-          .then((shopResponse) => {
-            console.log("Update Title Successful", shopResponse);
-            res.end(`Title successfully updated to: "${response.data.product.title}"`);
-          })
-          .catch((error) => {
-            if (error.response) {
-              res.status(error.response.status).send(error.message);
-            } else if (error.request) {
-              console.log('Error', error.request);
-            } else {
-              console.log('Error', error.message);
+        
+        cron.schedule('0 * * * *', () => {
+          const titleUpdate = {
+            "product": {
+              "id": 6888162295975,
+              "title": `Short Sleeve ${middleEarthNames.random()} T-shirt`
             }
-          });
+          };
+
+          axios
+            .put(shopRequestUrl, titleUpdate, { headers: shopRequestHeaders })
+            .then((shopResponse) => {
+              console.log(`Title successfully updated to: "${shopResponse.data.product.title}"`);
+            })
+            .catch((error) => {
+              if (error.response) {
+                res.status(error.response.status).send(error.message);
+              } else if (error.request) {
+                console.log('Error: ', error.request);
+              } else {
+                console.log('Error: ', error.message);
+              }
+            });
+        });
       })
       .catch((error) => {
         if (error.response) {
           res.status(error.response.status).send(error.message);
         } else if (error.request) {
-          console.log('Error', error.request);
+          console.log('Error: ', error.request);
         } else {
-          console.log('Error', error.message);
+          console.log('Error: ', error.message);
         }
       });
   } else {
