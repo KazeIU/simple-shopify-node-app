@@ -25,7 +25,18 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <p>{this.state.data}</p>
+        <div className="card-container">
+          <div className="form-container">
+            <form>
+              <input />
+              <button>Submit</button>
+            </form>
+            <div className="status">
+              <div className="status-icon"></div>
+              <p>{this.state.data}</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

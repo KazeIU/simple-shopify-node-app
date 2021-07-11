@@ -32,7 +32,7 @@ Shopify.Context.initialize({
 });
 
 app.get("/express_backend", (req, res) => {
-  res.send({ express: "EXPRESS BACKEND IS CONNECTED" });
+  res.send({ express: "connected to server" });
 });
 
 app.get("/auth", (req, res) => {
