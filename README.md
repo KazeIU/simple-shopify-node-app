@@ -1,6 +1,6 @@
 # Getting Started 
 
-Step 1: Refer to the the env [example](https://github.com/KazeIU/shopify-embedded-app/blob/master/.env.example) and fill in the variables 
+Step 1: Refer to the the env [example](https://github.com/KazeIU/simple-shopify-node-app/blob/master/.env.example) and fill in the variables 
 
 Step 2: Open an [Ngrok Tunnel](https://dashboard.ngrok.com/get-started/setup)
 
