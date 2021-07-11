@@ -7,6 +7,7 @@ class App extends Component {
       message: "",
       report: null
     },
+    price: ""
   };
 
   componentDidMount() {
@@ -35,14 +36,31 @@ class App extends Component {
     return body;
   };
 
+  handleNewPrice = newPrice => {
+    this.setState({ 
+      price: newPrice
+    });
+  };
+
+  handlePriceSubmit = (e) => {
+    e.preventDefault();
+    console.log(this.state.price);
+  };
+
   render() {
     return (
       <div className="App">
         <div className="card-container">
           <div className="form-container">
-            <form>
-              <input />
-              <button>Submit</button>
+            <form onSubmit={e => this.handlePriceSubmit(e)}>
+              <input 
+                type="text"
+                placeholder="Enter a new t-shirt price..."
+                className="price-input"
+                value={this.state.price}
+                onInput={(e) => this.handleNewPrice(e.target.value)}
+              />
+              <button type="submit">Submit</button>
             </form>
             <div className="status">
               <div className={`status-icon ${this.state.status.report}`}></div>
