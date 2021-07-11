@@ -1,50 +1,60 @@
 import React, { Component } from "react";
+import axios from "axios";
+
 import "./App.css";
 
 class App extends Component {
   state = {
     status: {
       message: "",
-      report: null
+      report: null,
     },
-    price: ""
+    price: "",
   };
 
   componentDidMount() {
     this.checkBackendStatus()
-      .then((res) => this.setState({ 
-        status: {
-          message: res.express,
-          report: "OK"
-        } 
-      }))
-      .catch((err) => this.setState({ 
-        status: {
-          message: "server not connected",
-          report: "NG"
-        }
-      }));
+      .then(res => this.serverStatus(res?.data?.message, "OK"))
+      .catch(err => this.serverStatus(err, "NG"));
   }
 
   checkBackendStatus = async () => {
-    const response = await fetch("/status_check");
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
+    try {
+      const res = await axios.get("/status_check");
+      return res;
+    } catch (err) {
+      alert("Server has been disconnected.");
+      console.log(err);
     }
-    return body;
   };
 
-  handleNewPrice = newPrice => {
-    this.setState({ 
-      price: newPrice
+  handleNewPrice = (newPrice) => {
+    this.setState({
+      price: newPrice,
     });
   };
 
-  handlePriceSubmit = (e) => {
+  handlePriceSubmit = async (e) => {
     e.preventDefault();
-    console.log(this.state.price);
+    try {
+      const res = await axios.get("/update_price", {
+        params: { price: this.state.price },
+      });
+
+      alert(res.data.message);
+    } catch (err) {
+      alert("The server is disconnected.");
+      console.log(err);
+    }
+  };
+
+  serverStatus = (message, report) => {
+    this.setState({
+      status: {
+        message,
+        report: message? report: "NG",
+      },
+    })
   };
 
   render() {
@@ -52,8 +62,8 @@ class App extends Component {
       <div className="App">
         <div className="card-container">
           <div className="form-container">
-            <form onSubmit={e => this.handlePriceSubmit(e)}>
-              <input 
+            <form onSubmit={(e) => this.handlePriceSubmit(e)}>
+              <input
                 type="text"
                 placeholder="Enter a new t-shirt price..."
                 className="price-input"
@@ -63,8 +73,10 @@ class App extends Component {
               <button type="submit">Submit</button>
             </form>
             <div className="status">
-              <div className={`status-icon ${this.state.status.report}`}></div>
-              <p>{this.state.status?.message? this.state.status.message: "server not connected"}</p>
+              <div className={`status-icon ${this.state.status?.report? this.state.status.report: "NG"}`}></div>
+              <p>
+                {this.state.status?.message? this.state.status.message: "server not connected"}
+              </p>
             </div>
           </div>
         </div>

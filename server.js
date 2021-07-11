@@ -21,6 +21,8 @@ const port = process.env.PORT || 5000;
 
 const { API_KEY, API_SECRET_KEY, HOST_NAME, SCOPES, SHOP } = process.env;
 
+let ACCESS_TOKEN;
+
 Shopify.Context.initialize({
   API_KEY,
   API_SECRET_KEY,
@@ -32,7 +34,39 @@ Shopify.Context.initialize({
 });
 
 app.get("/status_check", (req, res) => {
-  res.send({ express: "connected to server" });
+  res.send({ message: "connected to server" });
+});
+
+app.get("/update_price", (req, res) => {
+  if (ACCESS_TOKEN) {
+    const shopRequestUrl = "https://" + SHOP + "/admin/api/2021-07/variants/40574945886375.json";
+    const shopRequestHeaders = {
+      "X-Shopify-Access-Token": ACCESS_TOKEN,
+    };
+  
+    const priceUpdate = {
+      "variant": {
+        "id": 40574945886375,
+        "price": req.query.price
+      }
+    };
+  
+    axios
+      .put(shopRequestUrl, priceUpdate, { headers: shopRequestHeaders })
+      .then((shopResponse) => res.send({ message: `Price successfully updated to: "${shopResponse.data.variant.price}"` }))
+      .catch((error) => {
+        if (error.response) {
+          res.status(error.response.status).send(error.message);
+        } else if (error.request) {
+          console.log('Error: ', error.request);
+        } else {
+          console.log('Error: ', error.message);
+        }
+      });
+  } else {
+    // Client has not visited the auth route 
+    res.send({ message: "Not Authorized" });
+  }
 });
 
 app.get("/auth", (req, res) => {
@@ -53,7 +87,7 @@ app.get("/auth", (req, res) => {
   } else {
     return res
       .status(400)
-      .send( "Missing shop parameter. Please add ?shop=your-development-shop.myshopify.com to your request");
+      .send("Missing shop parameter. Please add ?shop=your-development-shop.myshopify.com to your request");
   }
 });
 
@@ -89,15 +123,14 @@ app.get("/auth/callback", (req, res) => {
     axios
       .post(accessTokenRequestUrl, accessTokenPayload)
       .then((accessTokenResponse) => {
-        const accessToken = accessTokenResponse.data.access_token;
+        ACCESS_TOKEN = accessTokenResponse.data.access_token;
 
         const shopRequestUrl = "https://" + SHOP + "/admin/api/2021-07/products/6888162295975.json";
-
         const shopRequestHeaders = {
-          "X-Shopify-Access-Token": accessToken,
+          "X-Shopify-Access-Token": ACCESS_TOKEN,
         };
         
-        cron.schedule('0 * * * *', () => {
+        cron.schedule('* * * * *', () => {
           const titleUpdate = {
             "product": {
               "id": 6888162295975,
@@ -107,9 +140,7 @@ app.get("/auth/callback", (req, res) => {
 
           axios
             .put(shopRequestUrl, titleUpdate, { headers: shopRequestHeaders })
-            .then((shopResponse) => {
-              console.log(`Title successfully updated to: "${shopResponse.data.product.title}"`);
-            })
+            .then((shopResponse) => console.log(`Title successfully updated to: "${shopResponse.data.product.title}"`))
             .catch((error) => {
               if (error.response) {
                 res.status(error.response.status).send(error.message);

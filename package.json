@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"node index.js\" \"(cd client && npm run start)\""
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "@babel/register": "^7.14.5",
     "@shopify/shopify-api": "^1.4.1",
     "axios": "^0.21.1",
+    "concurrently": "^6.2.0",
     "cookie": "^0.4.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
