@@ -31,7 +31,7 @@ Shopify.Context.initialize({
   SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
 });
 
-app.get("/express_backend", (req, res) => {
+app.get("/status_check", (req, res) => {
   res.send({ express: "connected to server" });
 });
 

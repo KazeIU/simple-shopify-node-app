@@ -3,17 +3,30 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    data: null,
+    status: {
+      message: "",
+      report: null
+    },
   };
 
   componentDidMount() {
-    this.callBackendAPI()
-      .then((res) => this.setState({ data: res.express }))
-      .catch((err) => console.log(err));
+    this.checkBackendStatus()
+      .then((res) => this.setState({ 
+        status: {
+          message: res.express,
+          report: "OK"
+        } 
+      }))
+      .catch((err) => this.setState({ 
+        status: {
+          message: "server not connected",
+          report: "NG"
+        }
+      }));
   }
-  // fetching the GET route from the Express server which matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch("/express_backend");
+
+  checkBackendStatus = async () => {
+    const response = await fetch("/status_check");
     const body = await response.json();
 
     if (response.status !== 200) {
@@ -32,8 +45,8 @@ class App extends Component {
               <button>Submit</button>
             </form>
             <div className="status">
-              <div className="status-icon"></div>
-              <p>{this.state.data}</p>
+              <div className={`status-icon ${this.state.status.report}`}></div>
+              <p>{this.state.status?.message? this.state.status.message: "server not connected"}</p>
             </div>
           </div>
         </div>
